@@ -19,7 +19,7 @@ bool PreLaunchLoad(void) {
 
 //Args API
 bool lengetargs, tgversionget;
-
+string CDAVersion;
 void argsApi(string args$api) {
 
 	//if (argsSetExit) set true
@@ -43,11 +43,13 @@ void argsApi(string args$api) {
 
 	if (lengetargs == true) {
 		WorkDirectory = args$api;
+		lengetargs = false;
 		return;
 	}
 
 	if (tgversionget == true) {
 		TargetVersion = args$api;
+		tgversionget = false;
 		return;
 	}
 
@@ -61,8 +63,10 @@ string TempURL,CodeVersion,DirectFile;
 string TempUserType,PreDefaultWD;
 int _HeadMainLoad() {
 	//main
+	CDAVersion = "1.0.3";
 	PreDefaultWD = _SystemAPI_getenv("userprofile") + "/OpenCalcium";
 
+	_p("Deploy Program Version :   " + CDAVersion);
 	if (WorkDirectory == "No Parameter") {
 		if (TargetVersion == "Default") {
 			_p("Calcium Deployment Application");
