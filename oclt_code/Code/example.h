@@ -75,7 +75,7 @@ string TempURL,CodeVersion,DirectFile;
 string TempUserType,PreDefaultWD;
 int _HeadMainLoad() {
 	//main
-	CDAVersion = "1.0.4";
+	CDAVersion = "1.0.5";
 	PreDefaultWD = _SystemAPI_getenv("userprofile") + "/OpenCalcium";
 
 	_p("Deploy Program Version :  " + CDAVersion + "       Installer Source :  " + InstallSource);
@@ -120,14 +120,14 @@ int _HeadMainLoad() {
 		_p("Error. failed to create directory");
 		_p("Dir :   " + WorkDirectory);
 		_pause();
-		return 0;
+		return -2;
 	}
 
 	_p("Connecting Server...");
 	if (!_urldown_api_vc_nocache("http://githubimage.foxaxu.com/connecttest.txt", SystemTemp + "/fxserver_connecttest.txt")) {
 		_p("Failed to connect server . URL :   http://githubimage.foxaxu.com/connecttest.txt");
 		_pause();
-		return 0;
+		return -2;
 	}
 
 	//Download PROFILE
@@ -135,7 +135,7 @@ int _HeadMainLoad() {
 	if (!_urldown_api_vc_nocache("http://githubimage.foxaxu.com/cda-api/version.txt", SystemTemp + "/fxserver_versionlist.txt")) {
 		_p("Failed to download files . URL :   http://githubimage.foxaxu.com/cda-api/version.txt");
 		_pause();
-		return 0;
+		return -2;
 	}
 
 	_p("Searching request version");
@@ -151,7 +151,7 @@ int _HeadMainLoad() {
 		if (TempURL == "") {
 			_p("Error : Your request version is not found");
 			_pause();
-			return 0;
+			return 3;
 		}
 	}
 	//Download Start
@@ -165,12 +165,17 @@ int _HeadMainLoad() {
 		DirectFile = WorkDirectory + "/Calcium.exe";
 	}
 	_dapi_create_full_path(DirectFile);
+	if (check_file_existence(DirectFile)) {
+		_p("Error :  This file is existing on select directory");
+		_pause();
+		return -3;
+	}
 
 	_p("Downloading ...  " + TempURL);
 	if (!_urldown_api_vc_nocache(TempURL, DirectFile)) {
 		_p("Failed to download files . URL :   " + TempURL);
 		_pause();
-		return 0;
+		return -2;
 	}
 
 	_p("");
