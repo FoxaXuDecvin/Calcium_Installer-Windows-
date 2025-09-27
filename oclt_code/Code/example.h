@@ -140,7 +140,6 @@ int _HeadMainLoad() {
 	}
 	//Download Start
 	_p("target version  " + CodeVersion + "    URL :  " + TempURL);
-	_p("DeployPath :  " + WorkDirectory + "/" + CodeVersion);
 
 	//Startdownload
 	if (CreateVerFolder) {
