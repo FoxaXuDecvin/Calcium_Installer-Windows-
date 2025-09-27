@@ -12,13 +12,14 @@ bool PreLaunchLoad(void) {
 	//
 	WorkDirectory = "No Parameter";
 	TargetVersion = "Default";
+	InstallSource = "DirectSetup";
 	CreateVerFolder = true;
 	//End
 	return true;
 }
 
 //Args API
-bool lengetargs, tgversionget;
+bool lengetargs, tgversionget,insourcget;
 string CDAVersion;
 void argsApi(string args$api) {
 
@@ -26,12 +27,12 @@ void argsApi(string args$api) {
 	//Process will close after args run
 
 	if (args$api == "--path") {
-		_prtoutmsg("Argument = " + args$api);
+
 		lengetargs = true;
 		return;
 	}
 	if (args$api == "--target-version") {
-		_prtoutmsg("Argument = " + args$api);
+
 		tgversionget = true;
 		return;
 	}
@@ -41,9 +42,20 @@ void argsApi(string args$api) {
 		return;
 	}
 
+	if (args$api == "--install-source") {
+		insourcget = true;
+		return;
+	}
+
 	if (lengetargs == true) {
 		WorkDirectory = args$api;
 		lengetargs = false;
+		return;
+	}
+
+	if (insourcget == true) {
+		InstallSource = args$api;
+		insourcget = false;
 		return;
 	}
 
@@ -63,10 +75,10 @@ string TempURL,CodeVersion,DirectFile;
 string TempUserType,PreDefaultWD;
 int _HeadMainLoad() {
 	//main
-	CDAVersion = "1.0.3";
+	CDAVersion = "1.0.4";
 	PreDefaultWD = _SystemAPI_getenv("userprofile") + "/OpenCalcium";
 
-	_p("Deploy Program Version :   " + CDAVersion);
+	_p("Deploy Program Version :  " + CDAVersion + "       Installer Source :  " + InstallSource);
 	if (WorkDirectory == "No Parameter") {
 		if (TargetVersion == "Default") {
 			_p("Calcium Deployment Application");

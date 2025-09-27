@@ -8,3 +8,4 @@
 string WorkDirectory;
 string TargetVersion;
 bool CreateVerFolder;
+string InstallSource;
