@@ -71,11 +71,14 @@ void argsApi(string args$api) {
 
 //Put Code Here
 string SystemTemp;
-string TempURL,CodeVersion,DirectFile;
+string TempURL,OriginURL,CodeVersion,DirectFile;
 string TempUserType,PreDefaultWD;
+string ServerA, ServerB, ServerC;
 int _HeadMainLoad() {
 	//main
-	CDAVersion = "1.0.5";
+	_fileapi_del(SystemTemp + "/fxserver_versionlist.txt");
+	_fileapi_del(SystemTemp + "/fxserver_connecttest.txt");
+	CDAVersion = "1.0.6";
 	PreDefaultWD = _SystemAPI_getenv("userprofile") + "/OpenCalcium";
 
 	_p("Deploy Program Version :  " + CDAVersion + "       Installer Source :  " + InstallSource);
@@ -132,30 +135,41 @@ int _HeadMainLoad() {
 
 	//Download PROFILE
 	_p("Downloading Cache file...");
-	if (!_urldown_api_vc_nocache("http://githubimage.foxaxu.com/cda-api/version.txt", SystemTemp + "/fxserver_versionlist.txt")) {
-		_p("Failed to download files . URL :   http://githubimage.foxaxu.com/cda-api/version.txt");
+	if (!_urldown_api_vc_nocache("http://githubimage.foxaxu.com/cda-api/download_api_windows.txt", SystemTemp + "/fxserver_versionlist.txt")) {
+		_p("Failed to download files . URL :   http://githubimage.foxaxu.com/cda-api/download_api_windows.txt");
 		_pause();
 		return -2;
 	}
 
 	_p("Searching request version");
+	if (!check_file_existence(SystemTemp + "/fxserver_versionlist.txt")) {
+		_p("Error : Local Security Software may blocked CDA Access version list files");
+		_p("version list files is lost");
+		_pause();
+		return 3;
+	}
+	ServerA = _load_sipcfg(SystemTemp + "/fxserver_versionlist.txt", "MainServer");
+	ServerB = _load_sipcfg(SystemTemp + "/fxserver_versionlist.txt", "SecondServer");
+	ServerC = _load_sipcfg(SystemTemp + "/fxserver_versionlist.txt", "fallbackServer");
 	//Latest
 	if (TargetVersion == "latest") {
 		//Get Latest
 		CodeVersion = _load_sipcfg(SystemTemp + "/fxserver_versionlist.txt", "latest");
-		TempURL = _load_sipcfg(SystemTemp + "/fxserver_versionlist.txt", CodeVersion);
+		OriginURL = _load_sipcfg(SystemTemp + "/fxserver_versionlist.txt", CodeVersion);
+
 	}
 	else {
 		CodeVersion = TargetVersion;
-		TempURL = _load_sipcfg(SystemTemp + "/fxserver_versionlist.txt", CodeVersion);
-		if (TempURL == "") {
+		OriginURL = _load_sipcfg(SystemTemp + "/fxserver_versionlist.txt", CodeVersion);
+		if (OriginURL == "") {
 			_p("Error : Your request version is not found");
 			_pause();
 			return 3;
 		}
+
 	}
 	//Download Start
-	_p("target version  " + CodeVersion + "    URL :  " + TempURL);
+	_p("target version  " + CodeVersion + "    URL :  " + OriginURL);
 
 	//Startdownload
 	if (CreateVerFolder) {
@@ -171,11 +185,27 @@ int _HeadMainLoad() {
 		return -3;
 	}
 
+	//URL Maker
+
+	TempURL = ReplaceChar(OriginURL, "{DomainServer}", ServerA);
 	_p("Downloading ...  " + TempURL);
 	if (!_urldown_api_vc_nocache(TempURL, DirectFile)) {
 		_p("Failed to download files . URL :   " + TempURL);
-		_pause();
-		return -2;
+		TempURL = ReplaceChar(OriginURL, "{DomainServer}", ServerB);
+		_p("Use Second Server   Downloading ...  " + TempURL);
+
+	    if (!_urldown_api_vc_nocache(TempURL, DirectFile)) {
+			_p("Failed to download files . URL :   " + TempURL);
+			TempURL = ReplaceChar(OriginURL, "{DomainServer}", ServerC);
+			_p("Use Fallback Server   Downloading ...  " + TempURL);
+
+			if (!_urldown_api_vc_nocache(TempURL, DirectFile)) {
+				_p("Failed to download files . URL :   " + TempURL);
+				_p("All Server target failed");
+				_pause();
+				return -2;
+			}
+		}
 	}
 
 	_p("");
